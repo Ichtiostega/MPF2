@@ -9,7 +9,7 @@ from matplotlib import cm
 
 
 class FlatRadiatorModel:
-    def __init__(self, dt=0.01, dxy=0.01, dz=0.006):
+    def __init__(self, dt=0.01, dxy=0.005, dz=0.006):
         self.dxy = dxy
         self.dz = dz
         self.P = 50
@@ -42,16 +42,18 @@ class FlatRadiatorModel:
                     )
         self.shape = tmp
 
-    def plot_layer(self, l):
+    def plot_layer(self, l, **kwargs):
         dims = self.shape.shape
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
         GX, GY = np.meshgrid(list(range(dims[1])), list(range(dims[2])))
         ax.plot_surface(GX, GY, self.shape[:][:][l], cmap=cm.coolwarm)
+        if 'title' in kwargs:
+            plt.title(kwargs['title'])
         plt.show()
 
 
 class WingedRadiatorModel:
-    def __init__(self, dt=0.01, dxy=0.01, dz=0.01):
+    def __init__(self, dt=0.01, dxy=0.005, dz=0.01):
         self.dxy = dxy
         self.dz = dz
         self.P = 50
@@ -89,18 +91,97 @@ class WingedRadiatorModel:
             int(self.thickness // self.dxy) : int((self.X - self.thickness) // self.dxy),
             :] = 20
 
-    def plot_layer(self, l):
+
+    def plot_layer(self, l, **kwargs):
         dims = self.shape.shape
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
         GX, GY = np.meshgrid(list(range(dims[1])), list(range(dims[2])))
         ax.plot_surface(GX, GY, self.shape[:][:][l], cmap=cm.coolwarm)
+        if 'title' in kwargs:
+            plt.title(kwargs['title'])
         plt.show()
 
 
-m = WingedRadiatorModel()
-for i in range(20):
-    print(i + 1)
+#   Flat Stability 
+
+#       Max Time, No Min Time
+
+# time = 0.15
+# m = FlatRadiatorModel(dt=time)
+# for _ in range(100):
+#     m.iterate()
+# print(m)
+# m.plot_layer(2, title=f'dt={time}')
+
+#       Max dxy, Min dxy
+
+# for dxy in [0.051, 0.001]:
+#     m = FlatRadiatorModel(dxy=dxy)
+#     for _ in range(100):
+#         m.iterate()
+#     print(m)
+#     m.plot_layer(2, title=f'dxy={dxy}')
+
+#       Max dz, Min dz
+
+# for dz in [0.03, 0.001]:
+#     m = FlatRadiatorModel(dz=dz)
+#     for _ in range(100):
+#         m.iterate()
+#     print(m)
+#     m.plot_layer(1, title=f'dz={dz}')
+
+#   Winged Stability 
+
+#       Max Time, No Min Time
+
+# time = 0.08
+# m = WingedRadiatorModel(dt=time)
+# for _ in range(100):
+#     m.iterate()
+# print(m)
+# m.plot_layer(2, title=f'dt={time}')
+
+#       Max dxy, Min dxy
+
+# for dxy in [0.051, 0.001]:
+#     m = WingedRadiatorModel(dxy=dxy)
+#     for _ in range(100):
+#         m.iterate()
+#     print(m)
+#     m.plot_layer(2, title=f'dxy={dxy}')
+
+#       Max dz, Min dz
+
+# for dz in [0.03, 0.001]:
+#     m = WingedRadiatorModel(dz=dz)
+#     for _ in range(100):
+#         m.iterate()
+#     print(m)
+#     m.plot_layer(1, title=f'dz={dz}')
+
+m = FlatRadiatorModel()
+i = 0
+diff = 1
+while diff > 0.00001:
+    tmp = m.shape
     m.iterate()
-print(m)
-for i in range(10):
-    m.plot_layer(i)
+    diff = np.max(np.abs(m.shape - tmp))
+    i+=1
+
+for l in range(10):
+    m.plot_layer(l, title=f'Stable layer={l}')
+print(i)
+
+m = WingedRadiatorModel()
+i = 0
+diff = 1
+while diff > 0.00001:
+    tmp = m.shape
+    m.iterate()
+    diff = np.max(np.abs(m.shape - tmp))
+    i+=1
+
+for l in range(10):
+    m.plot_layer(l, title=f'Stable layer={l}')
+print(i)
