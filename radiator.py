@@ -9,7 +9,7 @@ from matplotlib import cm
 
 
 class FlatRadiatorModel:
-    def __init__(self, dt=0.01, dxy=0.005, dz=0.006):
+    def __init__(self, dt=0.01, dxy=0.005, dz=0.0075):
         self.dxy = dxy
         self.dz = dz
         self.P = 50
@@ -42,18 +42,23 @@ class FlatRadiatorModel:
                     )
         self.shape = tmp
 
-    def plot_layer(self, l, **kwargs):
+    def plot_layer(self, ax, l, **kwargs):
         dims = self.shape.shape
-        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
         GX, GY = np.meshgrid(list(range(dims[1])), list(range(dims[2])))
         ax.plot_surface(GX, GY, self.shape[:][:][l], cmap=cm.coolwarm)
         if 'title' in kwargs:
-            plt.title(kwargs['title'])
-        plt.show()
-
+            ax.set_title(kwargs['title'])
+        ax.set_xlabel("x[cm]")
+        ax.set_xticks(np.linspace(0,self.X/self.dxy, 5))
+        ax.set_xticklabels(np.linspace(0,10,5))
+        ax.set_ylabel("y[cm]")
+        ax.set_yticks(np.linspace(0,self.X/self.dxy, 5))
+        ax.set_yticklabels(np.linspace(0,10,5))
+        ax.set_zlabel("T[C]")
+        return ax
 
 class WingedRadiatorModel:
-    def __init__(self, dt=0.01, dxy=0.005, dz=0.01):
+    def __init__(self, dt=0.01, dxy=0.005, dz=0.0125):
         self.dxy = dxy
         self.dz = dz
         self.P = 50
@@ -92,14 +97,20 @@ class WingedRadiatorModel:
             :] = 20
 
 
-    def plot_layer(self, l, **kwargs):
+    def plot_layer(self, ax, l, **kwargs):
         dims = self.shape.shape
-        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
         GX, GY = np.meshgrid(list(range(dims[1])), list(range(dims[2])))
         ax.plot_surface(GX, GY, self.shape[:][:][l], cmap=cm.coolwarm)
         if 'title' in kwargs:
-            plt.title(kwargs['title'])
-        plt.show()
+            ax.set_title(kwargs['title'])
+        ax.set_xlabel("x[cm]")
+        ax.set_xticks(np.linspace(0,self.X/self.dxy, 5))
+        ax.set_xticklabels(np.linspace(0,10,5))
+        ax.set_ylabel("y[cm]")
+        ax.set_yticks(np.linspace(0,self.X/self.dxy, 5))
+        ax.set_yticklabels(np.linspace(0,10,5))
+        ax.set_zlabel("T[C]")
+        return ax
 
 
 #   Flat Stability 
@@ -111,7 +122,9 @@ class WingedRadiatorModel:
 # for _ in range(100):
 #     m.iterate()
 # print(m)
-# m.plot_layer(2, title=f'dt={time}')
+# fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+# m.plot_layer(ax, 2, title=f'dt={time}')
+# plt.show()
 
 #       Max dxy, Min dxy
 
@@ -120,16 +133,20 @@ class WingedRadiatorModel:
 #     for _ in range(100):
 #         m.iterate()
 #     print(m)
-#     m.plot_layer(2, title=f'dxy={dxy}')
+#     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+#     m.plot_layer(ax, 2, title=f'dxy={dxy}')
+#     plt.show()
 
-#       Max dz, Min dz
+    #   Max dz, Min dz
 
 # for dz in [0.03, 0.001]:
 #     m = FlatRadiatorModel(dz=dz)
 #     for _ in range(100):
 #         m.iterate()
 #     print(m)
-#     m.plot_layer(1, title=f'dz={dz}')
+#     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+#     m.plot_layer(ax, 1, title=f'dz={dz}')
+#     plt.show()
 
 #   Winged Stability 
 
@@ -140,27 +157,53 @@ class WingedRadiatorModel:
 # for _ in range(100):
 #     m.iterate()
 # print(m)
-# m.plot_layer(2, title=f'dt={time}')
+# fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+# m.plot_layer(ax, 2, title=f'dt={time}')
+# plt.show()
 
-#       Max dxy, Min dxy
+#     #   Max dxy, Min dxy
 
 # for dxy in [0.051, 0.001]:
 #     m = WingedRadiatorModel(dxy=dxy)
 #     for _ in range(100):
 #         m.iterate()
 #     print(m)
-#     m.plot_layer(2, title=f'dxy={dxy}')
+#     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+#     m.plot_layer(ax, 2, title=f'dxy={dxy}')
+#     plt.show()
 
-#       Max dz, Min dz
+    #   Max dz, Min dz
 
-# for dz in [0.03, 0.001]:
+# for dz in [0.05, 0.001]:
 #     m = WingedRadiatorModel(dz=dz)
 #     for _ in range(100):
 #         m.iterate()
 #     print(m)
-#     m.plot_layer(1, title=f'dz={dz}')
+#     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+#     m.plot_layer(ax, 1, title=f'dz={dz}')
+#     plt.show()
 
-m = FlatRadiatorModel()
+# dz = 0.01
+# m = FlatRadiatorModel(dz=dz)
+# i = 0
+# diff = 1
+# while diff > 0.00001:
+#     tmp = m.shape
+#     m.iterate()
+#     diff = np.max(np.abs(m.shape - tmp))
+#     i+=1
+
+# fig, axs = plt.subplots(2, 3, subplot_kw={"projection": "3d"})
+# l = 0
+# for row in axs:
+#     for ax in row:
+#         m.plot_layer(ax, l, title=f'Warstwa na {100*(l+1)*dz}cm')
+#         l+=1
+# plt.show()
+# print(i)
+
+dz = 0.01
+m = WingedRadiatorModel(dz=dz)
 i = 0
 diff = 1
 while diff > 0.00001:
@@ -169,19 +212,14 @@ while diff > 0.00001:
     diff = np.max(np.abs(m.shape - tmp))
     i+=1
 
-for l in range(10):
-    m.plot_layer(l, title=f'Stable layer={l}')
-print(i)
-
-m = WingedRadiatorModel()
-i = 0
-diff = 1
-while diff > 0.00001:
-    tmp = m.shape
-    m.iterate()
-    diff = np.max(np.abs(m.shape - tmp))
-    i+=1
-
-for l in range(10):
-    m.plot_layer(l, title=f'Stable layer={l}')
+fig, axs = plt.subplots(3, 4, subplot_kw={"projection": "3d"})
+l = 0
+for row in axs[:2]:
+    for ax in row:
+        m.plot_layer(ax, l, title=f'Warstwa na {100*(l+1)*dz}cm')
+        l+=1
+m.plot_layer(axs[2][1], l, title=f'Warstwa na {100*(l+1)*dz}cm')
+l+=1
+m.plot_layer(axs[2][2], l, title=f'Warstwa na {100*(l+1)*dz}cm')
+plt.show()
 print(i)
